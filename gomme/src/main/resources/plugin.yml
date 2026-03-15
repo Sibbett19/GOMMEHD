@@ -1,0 +1,4 @@
+name: gomme
+version: '1.0-SNAPSHOT'
+main: de.sibbet.gomme.Gomme
+api-version: '1.21'
