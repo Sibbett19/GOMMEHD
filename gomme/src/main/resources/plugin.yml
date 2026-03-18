@@ -2,3 +2,11 @@ name: gomme
 version: '1.0-SNAPSHOT'
 main: de.sibbet.gomme.Gomme
 api-version: '1.21'
+commands:
+  skywars:
+    description: SkyWars Hauptkommando
+    usage: /skywars
+    aliases: [sw]
+permissions:
+  skywars.admin:
+    default: op
