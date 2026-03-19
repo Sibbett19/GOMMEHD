@@ -38,6 +38,7 @@ public final class ScoreboardService {
         }
 
         Scoreboard scoreboard = scoreboardManager.getNewScoreboard();
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("skywars", "dummy", "§6§lSkyWars");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 

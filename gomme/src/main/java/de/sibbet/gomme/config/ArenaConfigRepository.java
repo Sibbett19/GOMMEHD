@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class ArenaConfigRepository {
     private final de.sibbet.gomme.Gomme plugin;
@@ -41,6 +44,10 @@ public final class ArenaConfigRepository {
                     .filter(java.util.Objects::nonNull)
                     .toList();
             Map<Location, ChestTier> chests = loadChestLocations(arenaSection);
+            Set<Location> chests = new HashSet<>(arenaSection.getStringList("chests").stream()
+                    .map(LocationCodec::deserialize)
+                    .filter(java.util.Objects::nonNull)
+                    .toList());
 
             arenas.add(new SkywarsArena(key, lobby, spawns, chests));
         }
@@ -58,6 +65,7 @@ public final class ArenaConfigRepository {
                     .map(entry -> entry.getKey() == null ? null : entry.getValue().name() + ";" + LocationCodec.serialize(entry.getKey()))
                     .filter(java.util.Objects::nonNull)
                     .toList());
+            config.set(base + "chests", arena.chestLocations().stream().map(LocationCodec::serialize).toList());
         }
         plugin.saveConfig();
     }

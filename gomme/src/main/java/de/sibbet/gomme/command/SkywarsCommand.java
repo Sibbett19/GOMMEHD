@@ -109,6 +109,8 @@ public final class SkywarsCommand implements CommandExecutor {
     private void addChest(Player player, String[] args) {
         if (args.length < 3) {
             player.sendMessage("§c/skywars addchest <arena> <insel|mitte>");
+        if (args.length < 2) {
+            player.sendMessage("§c/skywars addchest <arena>");
             return;
         }
         if (player.getTargetBlockExact(5) == null || player.getTargetBlockExact(5).getType() != Material.CHEST) {
@@ -125,6 +127,9 @@ public final class SkywarsCommand implements CommandExecutor {
         arenaManager.getArena(args[1]).ifPresentOrElse(arena -> {
             arena.addChest(player.getTargetBlockExact(5).getLocation(), chestTier);
             player.sendMessage("§aKiste als " + (chestTier == ChestTier.CENTER ? "Mitte" : "Insel") + "-Loot registriert.");
+        arenaManager.getArena(args[1]).ifPresentOrElse(arena -> {
+            arena.chestLocations().add(player.getTargetBlockExact(5).getLocation());
+            player.sendMessage("§aKiste registriert.");
         }, () -> player.sendMessage("§cArena nicht gefunden."));
     }
 
@@ -139,6 +144,8 @@ public final class SkywarsCommand implements CommandExecutor {
                 return;
             }
             player.sendMessage("§cFür den Forcestart muss mindestens 1 Spieler in der Arena sein.");
+            gameService.forceStart(arena);
+            player.sendMessage("§aForcestart ausgelöst.");
         }, () -> player.sendMessage("§cArena nicht gefunden."));
     }
 
@@ -148,6 +155,7 @@ public final class SkywarsCommand implements CommandExecutor {
         player.sendMessage("§e/skywars setlobby <arena>");
         player.sendMessage("§e/skywars addspawn <arena>");
         player.sendMessage("§e/skywars addchest <arena> <insel|mitte>");
+        player.sendMessage("§e/skywars addchest <arena>");
         player.sendMessage("§e/skywars join <arena>");
         player.sendMessage("§e/skywars leave");
         player.sendMessage("§e/skywars stats");

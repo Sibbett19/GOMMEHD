@@ -48,6 +48,23 @@ public final class LootService {
             ThreadLocalRandom random = ThreadLocalRandom.current();
             List<ItemStack> lootPool = chestTier == ChestTier.CENTER ? centerLootPool : islandLootPool;
             int amount = chestTier == ChestTier.CENTER ? random.nextInt(4, 8) : random.nextInt(3, 6);
+    private final List<ItemStack> lootPool = List.of(
+            new ItemStack(Material.STONE_SWORD),
+            new ItemStack(Material.IRON_SWORD),
+            new ItemStack(Material.BOW),
+            new ItemStack(Material.ARROW, 16),
+            new ItemStack(Material.GOLDEN_APPLE, 2),
+            new ItemStack(Material.IRON_CHESTPLATE),
+            new ItemStack(Material.COOKED_BEEF, 12),
+            new ItemStack(Material.OAK_PLANKS, 32),
+            new ItemStack(Material.ENDER_PEARL, 1),
+            new ItemStack(Material.DIAMOND_HELMET)
+    );
+
+    public CompletableFuture<List<ItemStack>> rollChestLootAsync() {
+        return CompletableFuture.supplyAsync(() -> {
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            int amount = random.nextInt(3, 7);
             List<ItemStack> selected = new ArrayList<>();
             for (int i = 0; i < amount; i++) {
                 ItemStack template = lootPool.get(random.nextInt(lootPool.size()));

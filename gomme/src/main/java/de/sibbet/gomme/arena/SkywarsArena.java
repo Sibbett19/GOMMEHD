@@ -19,6 +19,7 @@ public final class SkywarsArena {
     private volatile Location lobbySpawn;
     private final List<Location> playerSpawns;
     private final Map<Location, ChestTier> chestLocations;
+    private final Set<Location> chestLocations;
     private final Set<UUID> players;
     private final AtomicReference<GamePhase> phase;
     private final AtomicInteger countdown;
@@ -29,6 +30,12 @@ public final class SkywarsArena {
         this.lobbySpawn = lobbySpawn;
         this.playerSpawns = new ArrayList<>(playerSpawns);
         this.chestLocations = new ConcurrentHashMap<>(chestLocations);
+    public SkywarsArena(String name, Location lobbySpawn, List<Location> playerSpawns, Set<Location> chestLocations) {
+        this.name = name;
+        this.lobbySpawn = lobbySpawn;
+        this.playerSpawns = new ArrayList<>(playerSpawns);
+        this.chestLocations = ConcurrentHashMap.newKeySet();
+        this.chestLocations.addAll(chestLocations);
         this.players = ConcurrentHashMap.newKeySet();
         this.phase = new AtomicReference<>(GamePhase.WAITING);
         this.countdown = new AtomicInteger(30);
@@ -61,6 +68,10 @@ public final class SkywarsArena {
 
     public void addChest(Location location, ChestTier chestTier) {
         chestLocations.put(location, chestTier);
+    }
+
+    public Set<Location> chestLocations() {
+        return chestLocations;
     }
 
     public Set<UUID> players() {

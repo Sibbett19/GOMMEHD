@@ -112,6 +112,13 @@ public final class GameService {
             arena.setPhase(GamePhase.COUNTDOWN);
             arena.resetCountdown(3);
             return true;
+    public void forceStart(SkywarsArena arena) {
+        arena.stateLock().lock();
+        try {
+            if (arena.players().size() >= 2) {
+                arena.setPhase(GamePhase.COUNTDOWN);
+                arena.resetCountdown(3);
+            }
         } finally {
             arena.stateLock().unlock();
         }
@@ -158,6 +165,7 @@ public final class GameService {
             Location spawn = spawns.isEmpty()
                     ? arena.lobbySpawn() == null ? player.getLocation() : arena.lobbySpawn()
                     : spawns.get(i % spawns.size());
+            Location spawn = spawns.get(i % Math.max(1, spawns.size()));
             player.teleport(spawn);
             player.getInventory().clear();
             player.setGameMode(GameMode.SURVIVAL);
@@ -173,6 +181,8 @@ public final class GameService {
             Location chestLocation = chestEntry.getKey();
             ChestTier chestTier = chestEntry.getValue();
             lootService.rollChestLootAsync(chestTier).thenAccept(loot -> Bukkit.getScheduler().runTask(plugin, () -> {
+        for (Location chestLocation : arena.chestLocations()) {
+            lootService.rollChestLootAsync().thenAccept(loot -> Bukkit.getScheduler().runTask(plugin, () -> {
                 if (chestLocation.getBlock().getType() != Material.CHEST) {
                     return;
                 }
