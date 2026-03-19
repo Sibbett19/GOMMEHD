@@ -1,6 +1,7 @@
 package de.sibbet.gomme.config;
 
 import de.sibbet.gomme.arena.SkywarsArena;
+import de.sibbet.gomme.game.ChestTier;
 import de.sibbet.gomme.util.LocationCodec;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
@@ -8,6 +9,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +43,7 @@ public final class ArenaConfigRepository {
                     .map(LocationCodec::deserialize)
                     .filter(java.util.Objects::nonNull)
                     .toList();
+            Map<Location, ChestTier> chests = loadChestLocations(arenaSection);
             Set<Location> chests = new HashSet<>(arenaSection.getStringList("chests").stream()
                     .map(LocationCodec::deserialize)
                     .filter(java.util.Objects::nonNull)
@@ -56,9 +61,40 @@ public final class ArenaConfigRepository {
             String base = "arenas." + arena.name() + ".";
             config.set(base + "lobby", arena.lobbySpawn() == null ? null : LocationCodec.serialize(arena.lobbySpawn()));
             config.set(base + "spawns", arena.playerSpawns().stream().map(LocationCodec::serialize).toList());
+            config.set(base + "chests", arena.chestLocations().entrySet().stream()
+                    .map(entry -> entry.getKey() == null ? null : entry.getValue().name() + ";" + LocationCodec.serialize(entry.getKey()))
+                    .filter(java.util.Objects::nonNull)
+                    .toList());
             config.set(base + "chests", arena.chestLocations().stream().map(LocationCodec::serialize).toList());
         }
         plugin.saveConfig();
+    }
+
+    private Map<Location, ChestTier> loadChestLocations(ConfigurationSection arenaSection) {
+        Map<Location, ChestTier> chests = new ConcurrentHashMap<>();
+        for (String serialized : arenaSection.getStringList("chests")) {
+            if (serialized == null || serialized.isBlank()) {
+                continue;
+            }
+
+            String[] parts = serialized.split(";", 2);
+            ChestTier tier = ChestTier.ISLAND;
+            String encodedLocation = serialized;
+            if (parts.length == 2) {
+                try {
+                    tier = ChestTier.valueOf(parts[0].toUpperCase());
+                    encodedLocation = parts[1];
+                } catch (IllegalArgumentException ignored) {
+                    encodedLocation = serialized;
+                }
+            }
+
+            Location location = LocationCodec.deserialize(encodedLocation);
+            if (location != null) {
+                chests.put(location, tier);
+            }
+        }
+        return chests;
     }
 
     private Location decodeNullable(String encoded) {

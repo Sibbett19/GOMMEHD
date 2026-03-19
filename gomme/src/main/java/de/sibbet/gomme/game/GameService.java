@@ -103,6 +103,15 @@ public final class GameService {
         checkWinCondition();
     }
 
+    public boolean forceStart(SkywarsArena arena) {
+        arena.stateLock().lock();
+        try {
+            if (arena.players().isEmpty()) {
+                return false;
+            }
+            arena.setPhase(GamePhase.COUNTDOWN);
+            arena.resetCountdown(3);
+            return true;
     public void forceStart(SkywarsArena arena) {
         arena.stateLock().lock();
         try {
@@ -153,6 +162,9 @@ public final class GameService {
             if (player == null) {
                 continue;
             }
+            Location spawn = spawns.isEmpty()
+                    ? arena.lobbySpawn() == null ? player.getLocation() : arena.lobbySpawn()
+                    : spawns.get(i % spawns.size());
             Location spawn = spawns.get(i % Math.max(1, spawns.size()));
             player.teleport(spawn);
             player.getInventory().clear();
@@ -165,6 +177,10 @@ public final class GameService {
     }
 
     private void fillArenaChests(SkywarsArena arena) {
+        for (Map.Entry<Location, ChestTier> chestEntry : arena.chestLocations().entrySet()) {
+            Location chestLocation = chestEntry.getKey();
+            ChestTier chestTier = chestEntry.getValue();
+            lootService.rollChestLootAsync(chestTier).thenAccept(loot -> Bukkit.getScheduler().runTask(plugin, () -> {
         for (Location chestLocation : arena.chestLocations()) {
             lootService.rollChestLootAsync().thenAccept(loot -> Bukkit.getScheduler().runTask(plugin, () -> {
                 if (chestLocation.getBlock().getType() != Material.CHEST) {

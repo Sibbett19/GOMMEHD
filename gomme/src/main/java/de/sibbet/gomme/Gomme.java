@@ -22,6 +22,7 @@ public final class Gomme extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getConfig().options().copyDefaults(true);
         saveDefaultConfig();
 
         this.arenaConfigRepository = new ArenaConfigRepository(this);
@@ -33,6 +34,9 @@ public final class Gomme extends JavaPlugin {
 
         mariaDbStatsService.start();
 
+        if (getCommand("skywars") == null) {
+            throw new IllegalStateException("Command 'skywars' is not defined in plugin.yml");
+        }
         getCommand("skywars").setExecutor(new SkywarsCommand(gameService, arenaManager, arenaConfigRepository));
         getServer().getPluginManager().registerEvents(new PlayerLifecycleListener(gameService, scoreboardService), this);
         getServer().getPluginManager().registerEvents(new GameListener(gameService), this);
@@ -53,6 +57,7 @@ public final class Gomme extends JavaPlugin {
         if (arenaConfigRepository != null && arenaManager != null) {
             arenaConfigRepository.saveArenas(arenaManager.getArenas());
         }
+        saveConfig();
         getLogger().info("SkyWars plugin disabled.");
     }
 }

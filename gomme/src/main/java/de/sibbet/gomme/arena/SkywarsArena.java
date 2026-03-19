@@ -1,10 +1,12 @@
 package de.sibbet.gomme.arena;
 
+import de.sibbet.gomme.game.ChestTier;
 import de.sibbet.gomme.game.GamePhase;
 import org.bukkit.Location;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,12 +18,18 @@ public final class SkywarsArena {
     private final String name;
     private volatile Location lobbySpawn;
     private final List<Location> playerSpawns;
+    private final Map<Location, ChestTier> chestLocations;
     private final Set<Location> chestLocations;
     private final Set<UUID> players;
     private final AtomicReference<GamePhase> phase;
     private final AtomicInteger countdown;
     private final ReentrantLock stateLock;
 
+    public SkywarsArena(String name, Location lobbySpawn, List<Location> playerSpawns, Map<Location, ChestTier> chestLocations) {
+        this.name = name;
+        this.lobbySpawn = lobbySpawn;
+        this.playerSpawns = new ArrayList<>(playerSpawns);
+        this.chestLocations = new ConcurrentHashMap<>(chestLocations);
     public SkywarsArena(String name, Location lobbySpawn, List<Location> playerSpawns, Set<Location> chestLocations) {
         this.name = name;
         this.lobbySpawn = lobbySpawn;
@@ -52,6 +60,14 @@ public final class SkywarsArena {
 
     public void addSpawn(Location location) {
         playerSpawns.add(location);
+    }
+
+    public Map<Location, ChestTier> chestLocations() {
+        return chestLocations;
+    }
+
+    public void addChest(Location location, ChestTier chestTier) {
+        chestLocations.put(location, chestTier);
     }
 
     public Set<Location> chestLocations() {

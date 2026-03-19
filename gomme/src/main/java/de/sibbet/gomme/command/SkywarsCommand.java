@@ -2,6 +2,7 @@ package de.sibbet.gomme.command;
 
 import de.sibbet.gomme.arena.ArenaManager;
 import de.sibbet.gomme.config.ArenaConfigRepository;
+import de.sibbet.gomme.game.ChestTier;
 import de.sibbet.gomme.game.GameService;
 import de.sibbet.gomme.stats.PlayerStats;
 import org.bukkit.Material;
@@ -106,6 +107,8 @@ public final class SkywarsCommand implements CommandExecutor {
     }
 
     private void addChest(Player player, String[] args) {
+        if (args.length < 3) {
+            player.sendMessage("§c/skywars addchest <arena> <insel|mitte>");
         if (args.length < 2) {
             player.sendMessage("§c/skywars addchest <arena>");
             return;
@@ -115,6 +118,15 @@ public final class SkywarsCommand implements CommandExecutor {
             return;
         }
 
+        ChestTier chestTier = parseChestTier(args[2]);
+        if (chestTier == null) {
+            player.sendMessage("§cLoot-Typ muss 'insel' oder 'mitte' sein.");
+            return;
+        }
+
+        arenaManager.getArena(args[1]).ifPresentOrElse(arena -> {
+            arena.addChest(player.getTargetBlockExact(5).getLocation(), chestTier);
+            player.sendMessage("§aKiste als " + (chestTier == ChestTier.CENTER ? "Mitte" : "Insel") + "-Loot registriert.");
         arenaManager.getArena(args[1]).ifPresentOrElse(arena -> {
             arena.chestLocations().add(player.getTargetBlockExact(5).getLocation());
             player.sendMessage("§aKiste registriert.");
@@ -127,6 +139,11 @@ public final class SkywarsCommand implements CommandExecutor {
             return;
         }
         arenaManager.getArena(args[1]).ifPresentOrElse(arena -> {
+            if (gameService.forceStart(arena)) {
+                player.sendMessage("§aForcestart ausgelöst (ab 1 Spieler möglich).");
+                return;
+            }
+            player.sendMessage("§cFür den Forcestart muss mindestens 1 Spieler in der Arena sein.");
             gameService.forceStart(arena);
             player.sendMessage("§aForcestart ausgelöst.");
         }, () -> player.sendMessage("§cArena nicht gefunden."));
@@ -137,11 +154,20 @@ public final class SkywarsCommand implements CommandExecutor {
         player.sendMessage("§e/skywars create <arena>");
         player.sendMessage("§e/skywars setlobby <arena>");
         player.sendMessage("§e/skywars addspawn <arena>");
+        player.sendMessage("§e/skywars addchest <arena> <insel|mitte>");
         player.sendMessage("§e/skywars addchest <arena>");
         player.sendMessage("§e/skywars join <arena>");
         player.sendMessage("§e/skywars leave");
         player.sendMessage("§e/skywars stats");
         player.sendMessage("§e/skywars forcestart <arena>");
         player.sendMessage("§e/skywars save");
+    }
+
+    private ChestTier parseChestTier(String input) {
+        return switch (input.toLowerCase()) {
+            case "insel", "island" -> ChestTier.ISLAND;
+            case "mitte", "center", "mid" -> ChestTier.CENTER;
+            default -> null;
+        };
     }
 }
