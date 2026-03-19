@@ -34,6 +34,9 @@ public final class Gomme extends JavaPlugin {
 
         mariaDbStatsService.start();
 
+        if (getCommand("skywars") == null) {
+            throw new IllegalStateException("Command 'skywars' is not defined in plugin.yml");
+        }
         getCommand("skywars").setExecutor(new SkywarsCommand(gameService, arenaManager, arenaConfigRepository));
         getServer().getPluginManager().registerEvents(new PlayerLifecycleListener(gameService, scoreboardService), this);
         getServer().getPluginManager().registerEvents(new GameListener(gameService), this);

@@ -23,7 +23,7 @@ public final class ArenaManager {
     }
 
     public SkywarsArena createArena(String name) {
-        SkywarsArena arena = new SkywarsArena(name, null, java.util.List.of(), java.util.Set.of());
+        SkywarsArena arena = new SkywarsArena(name, null, java.util.List.of(), java.util.Map.of());
         arenas.put(name.toLowerCase(), arena);
         return arena;
     }

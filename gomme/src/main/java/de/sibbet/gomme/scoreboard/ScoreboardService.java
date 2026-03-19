@@ -9,6 +9,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 public final class ScoreboardService {
     private final de.sibbet.gomme.Gomme plugin;
@@ -31,7 +32,12 @@ public final class ScoreboardService {
     }
 
     public void update(Player player) {
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
+        if (scoreboardManager == null) {
+            return;
+        }
+
+        Scoreboard scoreboard = scoreboardManager.getNewScoreboard();
         Objective objective = scoreboard.registerNewObjective("skywars", "dummy", "§6§lSkyWars");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
