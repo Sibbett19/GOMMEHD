@@ -1,0 +1,9 @@
+arenas: {}
+
+mariadb:
+  enabled: false
+  host: localhost
+  port: 3306
+  database: skywars
+  username: root
+  password: ""
